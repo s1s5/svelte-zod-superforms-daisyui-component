@@ -3,7 +3,7 @@ import AutoForm from "./auto-form.svelte";
 import FileInput from "./file-input.svelte";
 import MultiselectCheckbox from "./multiselect-checkbox.svelte";
 import OptionalInput from "./optional-input.svelte";
-import TextArea from "./text-area.svelte";
+import TextAreaInput from "./text-area-input.svelte";
 import ToggleInput from "./toggle-input.svelte";
 import AsyncSelectInput from "./async-select-input.svelte";
 import AutoInput from "./auto-input.svelte";
@@ -17,7 +17,7 @@ export {
   FileInput,
   MultiselectCheckbox,
   OptionalInput,
-  TextArea,
+  TextAreaInput,
   ToggleInput,
   AsyncSelectInput,
   AutoInput,

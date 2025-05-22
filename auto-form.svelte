@@ -60,12 +60,14 @@
 
   <ObjectInput {schema} {uiSchema} {theme} {superform} {extraProps} />
 
-  <button type="submit" class="btn btn-primary" disabled={$submitting}>
-    {#if $submitting}<ArrowPath
-        class="text-base-300 animate-spin dark:text-gray-300"
-        size="24"
-      />{:else}
-      送信
-    {/if}
-  </button>
+  <div class="border-base-200 mt-1 flex justify-end border-t pt-1 p-3">
+    <button type="submit" class="btn btn-primary" disabled={$submitting}>
+      {#if $submitting}<ArrowPath
+          class="text-base-300 animate-spin dark:text-gray-300"
+          size="24"
+        />{:else}
+        送信
+      {/if}
+    </button>
+  </div>
 </form>
