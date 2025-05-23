@@ -3,7 +3,7 @@
   import ArrowPath from "svelte-heros-v2/ArrowPath.svelte";
 
   import { z } from "zod";
-  import { superForm, defaults, setError, type FormOptions } from "sveltekit-superforms";
+  import { superForm, defaults, type FormOptions } from "sveltekit-superforms";
   import { zod } from "sveltekit-superforms/adapters";
   import type { Theme, ZodProperties } from "./types";
   import ObjectInput from "./object-input.svelte";
@@ -13,7 +13,8 @@
     initial?: T;
     schema: z.ZodObject<ZodProperties<T>>;
     // FormPathもFormPathLeavesもうまく行かない
-    uiSchema?: Record<string, typeof SvelteComponent<any>>;
+    // valueもtypeof SvelteComponent<any>したいが、ラップしたInputとかでだめ
+    uiSchema?: Record<string, any>;
     extraProps?: Record<string, any>;
     theme?: Theme;
     superFormProps?: Partial<FormOptions<T>>;
@@ -60,7 +61,7 @@
 
   <ObjectInput {schema} {uiSchema} {theme} {superform} {extraProps} />
 
-  <div class="border-base-200 mt-1 flex justify-end border-t pt-1 p-3">
+  <div class="border-base-200 mt-1 flex justify-end border-t p-3 pt-1">
     <button type="submit" class="btn btn-primary" disabled={$submitting}>
       {#if $submitting}<ArrowPath
           class="text-base-300 animate-spin dark:text-gray-300"
