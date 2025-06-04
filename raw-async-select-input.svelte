@@ -1,35 +1,33 @@
 <script lang="ts" generics="T extends Record<string, unknown>">
-  // TODO: raw-async-select-input使う
   import { XCircle } from "svelte-heros-v2";
-  import { formFieldProxy } from "sveltekit-superforms";
-  import type { SuperForm, FormPathLeaves } from "sveltekit-superforms";
-  import { z } from "zod";
 
   interface Props {
-    schema?: z.ZodString | z.ZodArray<z.ZodString>;
+    id: string;
     label?: string;
     labelMap?: Record<string, string>;
-    path: FormPathLeaves<T>;
-    superform: SuperForm<T>;
     load: (query: string, value: Array<string>) => Promise<Array<string>>;
     placeholder?: string;
     debounceDelay?: number;
+    value: string | Array<string>;
+    errors?: Array<string> | null | undefined;
+    multiple?: boolean;
+    onselect?: (value: string) => unknown;
+    onremove?: (index: number) => unknown;
   }
 
   let {
-    schema,
+    id,
     label,
     labelMap,
-    path,
-    superform,
     load,
     placeholder = "Serch items",
     debounceDelay = 500,
+    value = $bindable(),
+    errors,
+    multiple: isArray,
+    onselect,
+    onremove,
   }: Props = $props();
-
-  const { value, errors } = formFieldProxy<T, FormPathLeaves<T>, any>(superform, path);
-
-  let isArray = $derived(schema instanceof z.ZodArray);
 
   let items: Array<string> = $state([]);
 
@@ -52,7 +50,7 @@
       loading = true;
       errorMessage = undefined;
       try {
-        items = await load(inputValue, (isArray ? $value : [$value]) as Array<string>);
+        items = await load(inputValue, (isArray ? value : [value]) as Array<string>);
       } catch (error) {
         //   if (e instanceof ApolloError) {
         //   e.graphQLErrors // ReadonlyArray<GraphQLError>
@@ -75,7 +73,7 @@
       loading = true;
       errorMessage = undefined;
       try {
-        items = await load(inputValue, (isArray ? $value : [$value]) as Array<string>);
+        items = await load(inputValue, (isArray ? value : [value]) as Array<string>);
       } catch (error) {
         items = [];
         errorMessage = `${error}`;
@@ -86,30 +84,44 @@
 </script>
 
 <div class="mb-4">
-  <label class="mb-2 block text-sm font-bold" for={path}>{label}</label>
-  {#if isArray}
-    <div class="input w-full">
-      {#each $value as Array<any> as _, idx}
+  {#if label != null && label != ""}<label class="mb-2 block text-sm font-bold" for={id}
+      >{label}</label
+    >{/if}
+  <div class="input w-full">
+    {#if isArray}
+      {#each value as Array<any> as _, idx}
         <div class="badge badge-outline badge-info ps-1">
           <button
             type="button"
             class="cursor-pointer"
             onclick={() => {
-              value.update((v) => {
-                return v.filter((_: any, i: number) => i !== idx);
-              });
+              value = (value as Array<string>).filter((_: any, i: number) => i !== idx);
+
+              onremove?.(idx);
             }}><XCircle class="inline size-[1.5em]" /></button
           >
-          {labelMap?.[$value[idx]] ?? $value[idx]}
+          {labelMap?.[value[idx]] ?? value[idx]}
         </div>
       {/each}
-
       {@render renderInput()}
-    </div>
-  {:else}
-    {@render renderInput()}
-  {/if}
-  {#each $errors || [] as error}
+    {:else}
+      {#if value != ""}
+        <div class="badge badge-outline badge-info ps-1">
+          <button
+            type="button"
+            class="cursor-pointer"
+            onclick={() => {
+              value = "";
+              onremove?.(0);
+            }}><XCircle class="inline size-[1.5em]" /></button
+          >
+          {labelMap?.[value as any] || value}
+        </div>
+      {/if}
+      {@render renderInput()}
+    {/if}
+  </div>
+  {#each errors || [] as error}
     <p class="label text-error p-1">{error}</p>
   {/each}
 </div>
@@ -142,14 +154,14 @@
               class="hover:bg-base-200 hover w-full cursor-pointer px-2 py-1 text-left"
               onclick={() => {
                 if (isArray) {
-                  value.update((v) => {
-                    return v.concat([item]);
-                  });
-                  inputValue = "";
+                  value = value.concat([item] as any);
                 } else {
-                  value.set(item as any);
-                  inputValue = labelMap?.[item] || item;
+                  value = item;
                 }
+
+                onselect?.(item);
+
+                inputValue = "";
 
                 items = [];
                 hidden = true;
@@ -168,7 +180,7 @@
   <input
     class="input w-full outline-none focus:outline-none"
     type="text"
-    id={path}
+    {id}
     {placeholder}
     autocomplete="off"
     onfocus={() => {
