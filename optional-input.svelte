@@ -50,7 +50,9 @@
 
   const { value, errors } = formFieldProxy(superform, path as FormPathLeaves<T>);
   let initial = $state($value);
-  console.log(path, $value);
+  $effect(() => {
+    console.log(path, $value, initial);
+  });
 </script>
 
 <div class="mb-4">
@@ -58,7 +60,7 @@
     <div class="text-error">{$errors}</div>
   {/if}
   <h3>{label}</h3>
-  <div class="ps-4 border-s-2 border-s-primary">
+  <div class="border-s-primary border-s-2 ps-4">
     {#if optional}
       <label class="label me-3 cursor-pointer">
         <input
@@ -100,7 +102,11 @@
         class="radio"
         checked={$value != null}
         onchange={() => {
-          $value = defaults(initial as unknown as any, zod(childSchema)) as any;
+          if (initial != null) {
+            $value = initial;
+          } else {
+            $value = defaults(zod(z.object({ data: childSchema }))).data.data;
+          }
         }}
       />
       <span class="label-text">設定する</span>

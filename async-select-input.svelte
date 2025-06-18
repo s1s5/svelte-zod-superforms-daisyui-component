@@ -23,14 +23,13 @@
     path,
     superform,
     load,
-    placeholder = "Serch items",
+    placeholder,
     debounceDelay = 500,
   }: Props = $props();
 
   const { value, errors } = formFieldProxy<T, FormPathLeaves<T>, any>(superform, path);
 
   let isArray = $derived(schema instanceof z.ZodArray);
-
   let items: Array<string> = $state([]);
 
   let hidden = $state(true);
@@ -54,11 +53,7 @@
       try {
         items = await load(inputValue, (isArray ? $value : [$value]) as Array<string>);
       } catch (error) {
-        //   if (e instanceof ApolloError) {
-        //   e.graphQLErrors // ReadonlyArray<GraphQLError>
-        // }
-        // console.error(error.graphQLErrors);
-        console.error(error);
+        console.warn(error);
         errorMessage = `${error}`;
       }
       loading = false;
@@ -90,7 +85,7 @@
   {#if isArray}
     <div class="input w-full">
       {#each $value as Array<any> as _, idx}
-        <div class="badge badge-outline badge-info ps-1">
+        <div class="custom-badge">
           <button
             type="button"
             class="cursor-pointer"
@@ -107,7 +102,21 @@
       {@render renderInput()}
     </div>
   {:else}
-    {@render renderInput()}
+    <div class="input w-full">
+      {#if $value != null && $value != ""}
+        <div class="custom-badge">
+          <button
+            type="button"
+            class="cursor-pointer"
+            onclick={() => {
+              value.set("" as any);
+            }}><XCircle class="inline size-[1.5em]" /></button
+          >
+          {labelMap?.[$value as string] ?? $value}
+        </div>
+      {/if}
+      {@render renderInput()}
+    </div>
   {/if}
   {#each $errors || [] as error}
     <p class="label text-error p-1">{error}</p>
@@ -145,11 +154,10 @@
                   value.update((v) => {
                     return v.concat([item]);
                   });
-                  inputValue = "";
                 } else {
                   value.set(item as any);
-                  inputValue = labelMap?.[item] || item;
                 }
+                inputValue = "";
 
                 items = [];
                 hidden = true;
@@ -186,3 +194,14 @@
     value={inputValue}
   />
 {/snippet}
+
+<style lang="postcss">
+  :global {
+    @import "tailwindcss";
+    @plugin "daisyui";
+  }
+
+  .custom-badge {
+    @apply badge border-[1px] border-gray-300 text-gray-500 dark:bg-base-100 ps-1 dark:border-gray-400 dark:text-gray-400;
+  }
+</style>
