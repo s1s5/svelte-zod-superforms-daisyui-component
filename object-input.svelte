@@ -14,6 +14,7 @@
     uiSchema?: Record<string, typeof SvelteComponent<any>>;
     extraProps?: Record<string, any>;
     superform: SuperForm<T>;
+    order?: Array<string>;
   }
 
   function appendPath(field: string): FormPathLeaves<T> {
@@ -24,13 +25,18 @@
     }
   }
 
-  const { schema, uiSchema, theme, label, path, superform, extraProps }: Props = $props();
+  const { schema, uiSchema, theme, label, path, superform, extraProps, order }: Props = $props();
+
+  let fieldList =
+    order == null || order.length == 0
+      ? Object.keys(schema.shape)
+      : order.concat(Object.keys(schema.shape).filter((f) => !order.includes(f)));
 </script>
 
 <div class="mb-4 p-2">
   <h3>{label}</h3>
   <div>
-    {#each Object.keys(schema.shape) as field}
+    {#each fieldList as field}
       <AutoInput
         label={field}
         schema={schema.shape[field] as any}

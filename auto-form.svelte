@@ -18,9 +18,10 @@
     extraProps?: Record<string, any>;
     theme?: Theme;
     superFormProps?: Partial<FormOptions<T>>;
+    order?: Array<keyof T>;
   }
 
-  const { initial, schema, uiSchema, theme, extraProps, superFormProps }: Props = $props();
+  const { initial, schema, uiSchema, theme, extraProps, superFormProps, order }: Props = $props();
 
   const superform = superForm(defaults(initial as any, zod(schema)), {
     dataType: "json",
@@ -59,7 +60,7 @@
     </div>
   {/if}
 
-  <ObjectInput {schema} {uiSchema} {theme} {superform} {extraProps} />
+  <ObjectInput {schema} {uiSchema} {theme} {superform} {extraProps} order={order as Array<string>}/>
 
   <div class="border-base-200 mt-1 flex justify-end border-t p-3 pt-1">
     <button type="submit" class="btn btn-primary" disabled={$submitting}>

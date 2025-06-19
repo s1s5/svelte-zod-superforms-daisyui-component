@@ -10,12 +10,13 @@
     path: FormPathLeaves<T>;
     superform: SuperForm<T>;
     textAreaProps?: HTMLTextareaAttributes;
+    blank?: boolean;
   }
 
-  let { label, path, superform, textAreaProps }: Props = $props();
+  let { label, path, superform, textAreaProps, blank }: Props = $props();
 
   const { value, errors, constraints } = formFieldProxy<T, FormPathLeaves<T>, any>(superform, path);
-  const { class: textAreaClass, ...textAreaOtherProps } = textAreaProps ?? {};
+  const { class: textAreaClass, required, ...textAreaOtherProps } = textAreaProps ?? {};
 </script>
 
 <div class="mb-4">
@@ -27,6 +28,7 @@
     bind:value={$value}
     {...$constraints}
     {...textAreaOtherProps}
+    required={blank == true ? false : blank == false ? true : required}
   ></textarea>
   {#each $errors || [] as error}
     <p class="label text-error">{error}</p>

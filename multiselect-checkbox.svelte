@@ -8,28 +8,48 @@
     label?: string;
     path: FormPathLeaves<T>;
     superform: SuperForm<T>;
+    options?: Array<string | { label: string; value: string }>;
   }
 
-  let { schema, label, path, superform }: Props = $props();
+  let { schema, label, path, superform, options }: Props = $props();
 
-  const { value, errors, constraints } = formFieldProxy<T, FormPathLeaves<T>, any>(superform, path);
+  const { value, errors, constraints } = formFieldProxy<T, FormPathLeaves<T>, any>(
+    superform,
+    path,
+  );
+
+  function toValue(opt: string | {label: string, value: string}) {
+    if (typeof opt === "string") {
+      return opt;
+    } else {
+      return opt.value;
+    }
+  }
+  function toLabel(opt: string | {label: string, value: string}) {
+    if (typeof opt === "string") {
+      return opt;
+    } else {
+      return opt.label;
+    }
+  }
+
 </script>
 
 <div class="mb-4">
   <label class="mb-2 block text-sm font-bold" for={path}>{label}</label>
   <div class=" grid grid-cols-4 gap-2">
-    {#each schema?.element.options as candidate}
+    {#each options ?? schema?.element.options as candidate}
       <div class="flex">
         <label class="label cursor-pointer">
           <input
-            id="{path}-{candidate}"
+            id="{path}-{toValue(candidate)}"
             type="checkbox"
             class="checkbox me-3"
             bind:group={$value}
-            value={candidate}
+            value={toValue(candidate)}
             {...constraints}
           />
-          <span class="label-text">{candidate}</span>
+          <span class="label-text">{toLabel(candidate)}</span>
         </label>
       </div>
     {/each}

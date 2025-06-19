@@ -14,6 +14,7 @@
     load: (query: string, value: Array<string>) => Promise<Array<string>>;
     placeholder?: string;
     debounceDelay?: number;
+    disabled?: boolean;
   }
 
   let {
@@ -25,6 +26,7 @@
     load,
     placeholder,
     debounceDelay = 500,
+    disabled
   }: Props = $props();
 
   const { value, errors } = formFieldProxy<T, FormPathLeaves<T>, any>(superform, path);
@@ -192,6 +194,7 @@
     }}
     oninput={onInput}
     value={inputValue}
+    {disabled}
   />
 {/snippet}
 

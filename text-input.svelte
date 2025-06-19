@@ -10,12 +10,22 @@
     path: FormPathLeaves<T>;
     superform: SuperForm<T>;
     inputProps?: HTMLInputAttributes;
+    blank?: boolean;
+    setNullWhenEmpty?: boolean;
   }
 
-  let { schema, label, path, superform, inputProps }: Props = $props();
+  let { schema, label, path, superform, inputProps, setNullWhenEmpty, blank }: Props = $props();
 
   const { value, errors, constraints } = formFieldProxy<T, FormPathLeaves<T>, any>(superform, path);
-  const { class: inputClass, ...inputOtherProps } = inputProps ?? {};
+  const { class: inputClass, required, ...inputOtherProps } = inputProps ?? {};
+
+  if (setNullWhenEmpty) {
+    $effect(() => {
+      if ($value == "") {
+        value.set(null as any);
+      }
+    });
+  }
 
   let type = $derived.by(() => {
     if (schema instanceof z.ZodNumber) {
@@ -38,6 +48,7 @@
       bind:value={$value}
       {...$constraints}
       {...inputOtherProps}
+      required={blank == true ? false : blank == false ? true : required}
     />
     {#each $errors || [] as error}
       <p class="label text-error">{error}</p>
