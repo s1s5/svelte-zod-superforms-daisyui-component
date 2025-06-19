@@ -11,9 +11,11 @@
     placeholder?: string;
     labelMap?: Record<string, string>;
     selectProps?: HTMLSelectAttributes;
+    options?: Array<string>;
   }
 
-  let { schema, label, path, superform, placeholder, labelMap, selectProps }: Props = $props();
+  let { schema, label, path, superform, placeholder, labelMap, options, selectProps }: Props =
+    $props();
 
   const { value, errors, constraints } = formFieldProxy<T, FormPathLeaves<T>, any>(superform, path);
   const { class: selectClass, ...selectOtherProps } = selectProps ?? {};
@@ -34,7 +36,7 @@
     {#if placeholder != null}
       <option value="" disabled>{placeholder}</option>
     {/if}
-    {#each schema.options as col}
+    {#each options ?? schema.options as col}
       <option value={col}>{(labelMap ?? {})[col] ?? col}</option>
     {/each}
   </select>
